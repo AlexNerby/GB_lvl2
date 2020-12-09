@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="hours">
+        <item>00:00+1</item>
+        <item>01:00+1</item>
+        <item>02:00+0</item>
+        <item>03:00+0</item>
+        <item>04:00+0</item>
+        <item>05:00+1</item>
+        <item>06:00+1</item>
+        <item>07:00+1</item>
+        <item>08:00+2</item>
+        <item>09:00+2</item>
+        <item>10:00+3</item>
+        <item>11:00+3</item>
+        <item>12:00+4</item>
+        <item>13:00+4</item>
+        <item>14:00+5</item>
+        <item>15:00+5</item>
+        <item>16:00+5</item>
+        <item>17:00+5</item>
+        <item>18:00+4</item>
+        <item>19:00+4</item>
+        <item>20:00+4</item>
+        <item>21:00+3</item>
+        <item>22:00+3</item>
+        <item>23:00+1</item>
+    </string-array>
+
+    <string-array name="days">
+        <item>Сегодня\n25 окт.</item>
+        <item>Завтра\n26 окт.</item>
+        <item>Вт\n27 окт.</item>
+        <item>Ср\n28 окт.</item>
+        <item>Чт\n29 окт.</item>
+        <item>Пт\n30 окт.</item>
+        <item>Сб\n31 окт.</item>
+        <item>Вс\n1 ноя.</item>
+        <item>Пн\n2 ноя.</item>
+        <item>Вт\n3 ноя.</item>
+    </string-array>
+
+    <string-array name="citys">
+        <item>Санкт-Петербург</item>
+        <item>Новгород</item>
+        <item>Москва</item>
+        <item>Екатеринбург</item>
+        <item>Ростов</item>
+        <item>Ярославль</item>
+    </string-array>
+</resources>
