@@ -30,7 +30,7 @@ public class WebViewFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_web_view, container, false);
         webView = view.findViewById(R.id.web_view);
         webView.getSettings().setJavaScriptEnabled(true);
-//        webView.clearCache(true);
+//        webView.clearCache(true); ?
         webView.setWebViewClient(new MyWebViewClient());
         webView.getSettings().setDomStorageEnabled(true);
         webView.loadUrl("https://yandex.ru/pogoda/kraskovo");
