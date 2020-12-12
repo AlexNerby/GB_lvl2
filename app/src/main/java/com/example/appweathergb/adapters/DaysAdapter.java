@@ -13,7 +13,7 @@ import com.example.appweathergb.R;
 public class DaysAdapter extends RecyclerView.Adapter<DaysAdapter.ViewHolder> {
 
     private static final boolean LOG = true;
-    private static final String TAG = "weatherDaysAdapter";
+    private static final String TAG = "myWeatherDaysAdapter";
 
     private String[] days;
     private DaysAdapter.OnItemClickListener itemClickListener;  // Слушатель будет устанавливаться извне

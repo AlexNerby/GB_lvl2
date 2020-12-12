@@ -3,7 +3,6 @@ package com.example.appweathergb;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -18,42 +17,42 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.appweathergb.dialogs.CitySelectionExceptionDialog;
+import com.example.appweathergb.dialogs.OnDialogListenerExceptionConnection;
 import com.example.appweathergb.fragments.DaysFragment;
 import com.example.appweathergb.fragments.HoursFragment;
 import com.example.appweathergb.fragments.WebViewFragment;
-import com.example.appweathergb.model.JsonConnector;
-import com.example.appweathergb.model.WeatherRequest;
+import com.example.appweathergb.network.JsonConnector;
+import com.example.appweathergb.network.model.WeatherRequest;
 import com.example.appweathergb.observers.WeatherConnector;
-import com.example.appweathergb.storage.Parcel;
+import com.example.appweathergb.settings.BaseActivity;
+import com.example.appweathergb.settings.SearchActivity;
+import com.example.appweathergb.settings.SettingsActivity;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.navigation.NavigationView;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
+public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener
         , WeatherConnector, Constants {
-
     //TODO: подключить логирование, проверить ресурсы на хардкод, добавить ин.яз., стили, смена темы(настройки в drawer),...
 
     private static final boolean LOG = true;
-    private static final String TAG = "weatherActivityMain";
+    private static final String TAG = "myWeatherActivityMain";
 
     private JsonConnector jsonConnector;
+
+    private FragmentManager fragmentManager;
+    private FragmentTransaction fragmentTransaction;
 
     private Toolbar toolbar;
     private HoursFragment hoursFragment;
     private DaysFragment daysFragment;
     private WebViewFragment webViewFragment;
-    private FragmentManager fragmentManager;
-    private FragmentTransaction fragmentTransaction;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private AppBarLayout appBarLayout;
     private TextView mainTemp;
     private TextView mainCity;
 
-    private char celsius;
     private String toolbarTitleOpen;
     private String toolbarTitleClose;
     private String toolbarTitleMove;
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (LOG) {
-            Log.v(TAG, "onCreate");
+            Log.d(TAG, "start onCreate");
         }
 
         jsonConnector = new JsonConnector(getString(R.string.city_start_app), this);
@@ -72,19 +71,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initDrawer(toolbar);
         initStartFragments();
         initView();
-        otherInit();
     }
 
-    private void otherInit() {
-        celsius = 0x00B0;
-    }
 
     private void initView() {
+        if (LOG) {
+            Log.v(TAG, "initView");
+        }
+
         mainTemp = findViewById(R.id.mainPage_temp);
         mainCity = findViewById(R.id.city);
     }
 
     private void initBars() {
+        if (LOG) {
+            Log.v(TAG, "initBars");
+        }
+
         appBarLayout = findViewById(R.id.appBarLayout);
         collapsingToolbarLayout = findViewById(R.id.toolbarLayout);
         toolbar = findViewById(R.id.toolbar);
@@ -107,6 +110,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void initStartFragments() {
+        if (LOG) {
+            Log.v(TAG, "initFragments");
+        }
+
         hoursFragment = new HoursFragment();
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
@@ -128,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (LOG) {
             Log.v(TAG, "initDrawer");
         }
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.getStatusBarBackgroundDrawable();
         final CoordinatorLayout mainContent = findViewById(R.id.mainContent);
@@ -145,19 +153,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
-        if (LOG) {
-            Log.v(TAG, "finalDrawer");
-        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        if (LOG) {
+            Log.v(TAG, "onCreateOptionsMenu");
+        }
+
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (LOG) {
+            Log.v(TAG, "onOptionsItemSelected");
+        }
+
         int id = item.getItemId();
         switch (id) {
             case R.id.changeCity:
@@ -170,18 +183,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if (LOG) {
+            Log.v(TAG, "onNavigationItemSelected");
+        }
+
         int id = item.getItemId();
         switch (id) {
             case R.id.nav:
                 Intent intent = new Intent(this, SearchActivity.class);
                 intent.putExtra(KEY_SEARCH_ACTIVITY, mainCity.getText().toString());
                 startActivityForResult(intent, REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY);
+                break;
+
+            case R.id.set:
+                Intent intentSet = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivityForResult(intentSet, SETTING_CODE);
         }
         return false;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (LOG) {
+            Log.v(TAG, "onActivityResult");
+        }
+
+        if (requestCode == SETTING_CODE) {
+            recreate();
+        }
+
         if (requestCode != REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY) {
             super.onActivityResult(requestCode, resultCode, data);
             return;
@@ -195,6 +225,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void update(WeatherRequest weatherRequest, String exception) {
+        if (LOG) {
+            Log.v(TAG, "updateImpl WeatherConnector");
+        }
+
         if (exception == null) {
             float a = weatherRequest.getMain().getTemp() - 273;
             int result = Math.round(a);
@@ -204,11 +238,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             toolbarTitleClose = String.format("%s %d%c", weatherRequest.getName(), result, celsius);
             toolbarTitleMove = String.format("%s", weatherRequest.getName());
         } else {
+            CitySelectionExceptionDialog exceptionDialog = CitySelectionExceptionDialog.newInstance();
+            exceptionDialog.setDialogListenerExceptionConnection(new OnDialogListenerExceptionConnection() {
+                @Override
+                public void change() {
+                    Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                    intent.putExtra(KEY_SEARCH_ACTIVITY, mainCity.getText().toString());
+                    startActivityForResult(intent, REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY);
+                }
+            });
             mainCity.setText(exception);
             mainTemp.setText(exception);
             toolbarTitleOpen = exception;
             toolbarTitleMove = exception;
             toolbarTitleClose = exception;
+
+            exceptionDialog.show(getSupportFragmentManager(), "dialog_fragment");
+
         }
     }
 }

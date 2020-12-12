@@ -1,4 +1,4 @@
-package com.example.appweathergb.model;
+package com.example.appweathergb.network.model;
 
 public class Weather {
     private String main;

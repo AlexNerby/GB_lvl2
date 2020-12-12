@@ -23,5 +23,11 @@
     <string name="wind_speed">%d м/с</string>
     <string name="add_city">Введите Город</string>
     <string name="city_start_app">москва</string>
+    <string name="title_succes_city_dialog">Город %s</string>
+    <string name="body_success_sity_dialog">Выбрать расположение город %s</string>
+    <string name="Connection_exception">Ошибка соединения</string>
+    <string name="body_warning_sity_dialog">%s не найден</string>
+    <string name="settings_Button_apply">Применить</string>
+    <string name="Change_theme">Сменить тему  </string>
 
 </resources>

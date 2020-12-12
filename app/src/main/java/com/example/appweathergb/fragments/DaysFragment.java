@@ -1,10 +1,13 @@
 package com.example.appweathergb.fragments;
 
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,37 +19,49 @@ import com.example.appweathergb.adapters.DaysAdapter;
 public class DaysFragment extends Fragment {
 
     private static final boolean LOG = true;
-    private static final String TAG = "weatherFragmentDays";
+    private static final String TAG = "myWeatherFragmentDays";
 
     private String[] days;
     private RecyclerView recyclerView;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
+    private DaysAdapter adapter;
+    private LinearLayoutManager layoutManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        if (LOG) {
+            Log.d(TAG, "onCreateView");
+        }
+
+
         View view = inflater.inflate(R.layout.fragment_days, container, false);
         days = getResources().getStringArray(R.array.days);
         recyclerView = view.findViewById(R.id.day_recycler);
 
         recyclerView.setHasFixedSize(true);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(layoutManager);
+        if (savedInstanceState != null) {
+            recyclerView.setAdapter(null);
+            recyclerView.setLayoutManager(null);
+            recyclerView.getRecycledViewPool().clear();
+        } else {
+            layoutManager = new LinearLayoutManager(getActivity());
+            recyclerView.setLayoutManager(layoutManager);
+            adapter = new DaysAdapter(days);
+            recyclerView.setAdapter(adapter);
 
-        DaysAdapter adapter = new DaysAdapter(days);
-        recyclerView.setAdapter(adapter);
+            adapter.setOnItemClickListener(new DaysAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view) {
+                    //:TODO открыть подробную погоду на 1 день
+                }
+            });
+        }
 
-        adapter.setOnItemClickListener(new DaysAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view) {
-                //:TODO открыть подробную погоду на 1 день
-            }
-        });
+
+
+
         return view;
     }
 }

@@ -1,36 +1,36 @@
-package com.example.appweathergb;
+package com.example.appweathergb.settings;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 
-import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.appweathergb.Constants;
+import com.example.appweathergb.R;
+import com.example.appweathergb.dialogs.CitySelectionSuccessDialog;
+import com.example.appweathergb.dialogs.OnDialogListenerCitySelect;
+import com.example.appweathergb.observers.Publisher;
 import com.example.appweathergb.singleton.SimpleSingleton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-//TODO: добавить Диалоги подтверждения выбора города
 
-public class SearchActivity extends AppCompatActivity implements Constants {
+public class SearchActivity extends BaseActivity implements Constants {
 
     private static final boolean LOG = true;
     private static final String TAG = "weatherActivitySearch";
+
+    private Publisher publisher;
 
     private List<String> list;
     private ImageButton mic;
@@ -47,21 +47,10 @@ public class SearchActivity extends AppCompatActivity implements Constants {
         Log.d(TAG, "onCreate");
 
         singleton = SimpleSingleton.getInstance();
+        publisher = new Publisher();
 
         initView();
         otherInit();
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                searchView.setQuery(adapterView.getItemAtPosition(i).toString(), false);
-                String str = adapterView.getItemAtPosition(i).toString();
-                Intent intent = new Intent();
-                intent.putExtra(KEY_MAIN_ACTIVITY, str);
-                setResult(RESULT_COD_SEARCH_VIEW, intent);
-                finish();
-            }
-        });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -74,11 +63,28 @@ public class SearchActivity extends AppCompatActivity implements Constants {
                     adapter.addAll(list);
                     adapter.notifyDataSetChanged();
                     singleton.setMsg(list);
+
                 }
-                Intent intent = new Intent();
-                intent.putExtra(KEY_MAIN_ACTIVITY, query);
-                setResult(RESULT_COD_SEARCH_VIEW, intent);
-                finish();
+                singleton.setCity(query);
+
+                CitySelectionSuccessDialog successDialog = CitySelectionSuccessDialog.newInstance();
+                successDialog.setDialogListenerCitySelect(new OnDialogListenerCitySelect() {
+                    @Override
+                    public void onDialogOk() {
+                        Intent intent = new Intent();
+                        intent.putExtra(KEY_MAIN_ACTIVITY, query);
+                        setResult(RESULT_COD_SEARCH_VIEW, intent);
+                        finish();
+                    }
+
+                    @Override
+                    public void onDialogNo() {
+                        Toast.makeText(SearchActivity.this, "Отмена", Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                });
+//                successDialog.updateText(query);
+                successDialog.show(getSupportFragmentManager(), "dialog_fragment");
                 return false;
             }
 
@@ -117,6 +123,33 @@ public class SearchActivity extends AppCompatActivity implements Constants {
         send = findViewById(R.id.send);
         listView = findViewById(R.id.list_view_search);
         searchView = findViewById(R.id.searchView_listView);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                searchView.setQuery(adapterView.getItemAtPosition(i).toString(), false);
+                String str = adapterView.getItemAtPosition(i).toString();
+                singleton.setCity(str);
+
+                CitySelectionSuccessDialog successDialog = CitySelectionSuccessDialog.newInstance();
+                successDialog.setDialogListenerCitySelect(new OnDialogListenerCitySelect() {
+                    @Override
+                    public void onDialogOk() {
+                        Intent intent = new Intent();
+                        intent.putExtra(KEY_MAIN_ACTIVITY, str);
+                        setResult(RESULT_COD_SEARCH_VIEW, intent);
+                        finish();
+                    }
+
+                    @Override
+                    public void onDialogNo() {
+                        Toast.makeText(SearchActivity.this, "Отмена", Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                });
+                successDialog.show(getSupportFragmentManager(), "dialogBuilder");
+            }
+        });
     }
 
     @Override

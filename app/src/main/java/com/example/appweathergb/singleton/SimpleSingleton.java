@@ -11,9 +11,18 @@ public class SimpleSingleton {
     private static SimpleSingleton instance;
 
     private List<String> msg;
+    private String city;
 
     public List<String> getMsg() {
         return msg;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public void setMsg(List<String> msg) {
