@@ -1,4 +1,4 @@
-package com.example.appweathergb;
+package com.example.appweathergb.ui;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -9,37 +9,43 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.appweathergb.dialogs.CitySelectionExceptionDialog;
-import com.example.appweathergb.dialogs.OnDialogListenerExceptionConnection;
-import com.example.appweathergb.fragments.DaysFragment;
-import com.example.appweathergb.fragments.HoursFragment;
-import com.example.appweathergb.fragments.WebViewFragment;
+import com.example.appweathergb.R;
+import com.example.appweathergb.ui.dialogs.CitySelectionExceptionDialog;
+import com.example.appweathergb.ui.dialogs.OnDialogListenerExceptionConnection;
+import com.example.appweathergb.entities.WeatherView;
+import com.example.appweathergb.ui.fragments.DaysFragment;
+import com.example.appweathergb.ui.fragments.HoursFragment;
+import com.example.appweathergb.ui.fragments.WebViewFragment;
 import com.example.appweathergb.network.JsonConnector;
 import com.example.appweathergb.network.model.WeatherRequest;
 import com.example.appweathergb.observers.WeatherConnector;
-import com.example.appweathergb.settings.BaseActivity;
-import com.example.appweathergb.settings.SearchActivity;
-import com.example.appweathergb.settings.SettingsActivity;
+import com.example.appweathergb.parcer.ParserConnector;
+import com.example.appweathergb.service.JsonService;
+import com.example.appweathergb.ui.settings.BaseActivity;
+import com.example.appweathergb.ui.settings.SettingsActivity;
+import com.example.appweathergb.storage.Constants;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.navigation.NavigationView;
 
+
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener
-        , WeatherConnector, Constants {
+        , WeatherConnector, ParserConnector.BackParser {
     //TODO: подключить логирование, проверить ресурсы на хардкод, добавить ин.яз., стили, смена темы(настройки в drawer),...
 
     private static final boolean LOG = true;
     private static final String TAG = "myWeatherActivityMain";
-
-    private JsonConnector jsonConnector;
 
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
@@ -57,6 +63,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private String toolbarTitleClose;
     private String toolbarTitleMove;
 
+    private boolean isBound = false;
+    private JsonService.ServiceBinder boundService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,8 +73,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (LOG) {
             Log.d(TAG, "start onCreate");
         }
-
-        jsonConnector = new JsonConnector(getString(R.string.city_start_app), this);
+        Intent intent = new Intent(MainActivity.this, JsonService.class);
+        bindService(intent, boundServiceConnection, BIND_AUTO_CREATE);
 
         initBars();
         initDrawer(toolbar);
@@ -73,12 +82,43 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         initView();
     }
 
+    private ServiceConnection boundServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            boundService = (JsonService.ServiceBinder) iBinder;
+            isBound = boundService != null;
+            boundService.startHttps(MainActivity.this, getString(R.string.city_start_app));
+            if (isBound) {
+                Log.d(TAG, "boundService connection | startHttps");
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            isBound = false;
+            boundService = null;
+            if (LOG) {
+                Log.d(TAG, "boundService = null | isBound = false");
+            }
+        }
+    };
+
+    @Override
+    protected void onStop() {
+        //TODO: fixed: при каждом повороте экрана убивает HandlerThread и пересоздает
+        if (LOG) {
+            Log.d(TAG, "onStop | unbindService");
+        }
+//        if (isBound) {
+//            unbindService(boundServiceConnection);
+//        }
+        super.onStop();
+    }
 
     private void initView() {
         if (LOG) {
             Log.v(TAG, "initView");
         }
-
         mainTemp = findViewById(R.id.mainPage_temp);
         mainCity = findViewById(R.id.city);
     }
@@ -87,7 +127,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (LOG) {
             Log.v(TAG, "initBars");
         }
-
         appBarLayout = findViewById(R.id.appBarLayout);
         collapsingToolbarLayout = findViewById(R.id.toolbarLayout);
         toolbar = findViewById(R.id.toolbar);
@@ -160,7 +199,6 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (LOG) {
             Log.v(TAG, "onCreateOptionsMenu");
         }
-
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -175,8 +213,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         switch (id) {
             case R.id.changeCity:
                 Intent intent = new Intent(this, SearchActivity.class);
-                intent.putExtra(KEY_SEARCH_ACTIVITY, mainCity.getText().toString());
-                startActivityForResult(intent, REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY);
+                intent.putExtra(Constants.KEY_SEARCH_ACTIVITY, mainCity.getText().toString());
+                startActivityForResult(intent, Constants.REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -191,13 +229,13 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         switch (id) {
             case R.id.nav:
                 Intent intent = new Intent(this, SearchActivity.class);
-                intent.putExtra(KEY_SEARCH_ACTIVITY, mainCity.getText().toString());
-                startActivityForResult(intent, REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY);
+                intent.putExtra(Constants.KEY_SEARCH_ACTIVITY, mainCity.getText().toString());
+                startActivityForResult(intent, Constants.REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY);
                 break;
 
             case R.id.set:
                 Intent intentSet = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivityForResult(intentSet, SETTING_CODE);
+                startActivityForResult(intentSet, Constants.SETTING_CODE);
         }
         return false;
     }
@@ -208,23 +246,36 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             Log.v(TAG, "onActivityResult");
         }
 
-        if (requestCode == SETTING_CODE) {
+        if (requestCode == Constants.SETTING_CODE) {
             recreate();
         }
 
-        if (requestCode != REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY) {
+        if (requestCode != Constants.REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY) {
             super.onActivityResult(requestCode, resultCode, data);
             return;
         }
-        if (resultCode == RESULT_COD_SEARCH_VIEW) {
-            String city = data.getStringExtra(KEY_MAIN_ACTIVITY);
+        if (resultCode == Constants.RESULT_COD_SEARCH_VIEW) {
+            String city = data.getStringExtra(Constants.KEY_MAIN_ACTIVITY);
             mainCity.setText(city);
-            jsonConnector = new JsonConnector(city, this);
+
+            if (boundService == null) {
+                Log.d(TAG, "boundService == null");
+                Intent intent = new Intent(MainActivity.this, JsonService.class);
+                bindService(intent, boundServiceConnection, BIND_AUTO_CREATE);
+            } else {
+                boundService.startHttps(this, city);
+                Log.d(TAG, "startHttps in result");
+
+            }
+//            jsonConnector = new JsonConnector(city, this);
+
         }
     }
 
     @Override
     public void update(WeatherRequest weatherRequest, String exception) {
+
+        //TODO: Не рабочий код, пока не подключу Retrofit
         if (LOG) {
             Log.v(TAG, "updateImpl WeatherConnector");
         }
@@ -233,9 +284,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             float a = weatherRequest.getMain().getTemp() - 273;
             int result = Math.round(a);
             mainCity.setText(weatherRequest.getName());
-            mainTemp.setText(String.valueOf(result) + celsius);
-            toolbarTitleOpen = String.format(getString(R.string.wind_speed), weatherRequest.getWind().getSpeed());
-            toolbarTitleClose = String.format("%s %d%c", weatherRequest.getName(), result, celsius);
+            mainTemp.setText(String.valueOf(result) + Constants.celsius);
+//            toolbarTitleOpen = String.format(getString(R.string.wind_speed), weatherRequest.getWind().getSpeed());
+            toolbarTitleClose = String.format("%s %d", weatherRequest.getName(), result);
             toolbarTitleMove = String.format("%s", weatherRequest.getName());
         } else {
             CitySelectionExceptionDialog exceptionDialog = CitySelectionExceptionDialog.newInstance();
@@ -243,8 +294,8 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
                 @Override
                 public void change() {
                     Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-                    intent.putExtra(KEY_SEARCH_ACTIVITY, mainCity.getText().toString());
-                    startActivityForResult(intent, REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY);
+                    intent.putExtra(Constants.KEY_SEARCH_ACTIVITY, mainCity.getText().toString());
+                    startActivityForResult(intent, Constants.REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY);
                 }
             });
             mainCity.setText(exception);
@@ -254,7 +305,37 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             toolbarTitleClose = exception;
 
             exceptionDialog.show(getSupportFragmentManager(), "dialog_fragment");
+        }
+    }
 
+    @Override
+    public void dataWeather(WeatherView weatherView, String exception) {
+        if (LOG) {
+            Log.v(TAG, "dataWeather");
+        }
+        if (exception != null) {
+            if (LOG) {
+                Log.v(TAG, "exception != null");
+            }
+            CitySelectionExceptionDialog exceptionDialog = CitySelectionExceptionDialog.newInstance();
+            exceptionDialog.setDialogListenerExceptionConnection(new OnDialogListenerExceptionConnection() {
+                @Override
+                public void change() {
+                    Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                    intent.putExtra(Constants.KEY_SEARCH_ACTIVITY, mainCity.getText().toString());
+                    startActivityForResult(intent, Constants.REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY);
+                }
+            });
+            exceptionDialog.show(getSupportFragmentManager(), "dialog_fragment");
+        } else {
+            if (LOG) {
+                Log.v(TAG, "exception == null");
+            }
+            mainCity.setText(weatherView.getCity());
+            mainTemp.setText(weatherView.getTemperature());
+            toolbarTitleOpen = String.format(getString(R.string.wind_speed), weatherView.getWindSpeed());
+            toolbarTitleClose = String.format("%s %s", weatherView.getCity(), weatherView.getTemperature());
+            toolbarTitleMove = String.format("%s", weatherView.getCity());
         }
     }
 }

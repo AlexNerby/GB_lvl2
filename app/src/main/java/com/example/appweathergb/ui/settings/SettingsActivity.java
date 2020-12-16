@@ -1,6 +1,4 @@
-package com.example.appweathergb.settings;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.example.appweathergb.ui.settings;
 
 import android.os.Bundle;
 import android.view.View;
@@ -9,7 +7,6 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.example.appweathergb.R;
-import com.example.appweathergb.settings.BaseActivity;
 
 public class SettingsActivity extends BaseActivity {
 

@@ -1,10 +1,12 @@
-package com.example.appweathergb.settings;
+package com.example.appweathergb.ui;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,12 +15,14 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.appweathergb.Constants;
+import com.example.appweathergb.service.JsonService;
+import com.example.appweathergb.storage.Constants;
 import com.example.appweathergb.R;
-import com.example.appweathergb.dialogs.CitySelectionSuccessDialog;
-import com.example.appweathergb.dialogs.OnDialogListenerCitySelect;
+import com.example.appweathergb.ui.dialogs.CitySelectionSuccessDialog;
+import com.example.appweathergb.ui.dialogs.OnDialogListenerCitySelect;
 import com.example.appweathergb.observers.Publisher;
 import com.example.appweathergb.singleton.SimpleSingleton;
+import com.example.appweathergb.ui.settings.BaseActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package com.example.appweathergb.settings;
+package com.example.appweathergb.ui.settings;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package com.example.appweathergb.fragments;
+package com.example.appweathergb.ui.fragments;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -28,6 +28,7 @@ public class WebViewFragment extends Fragment {
         if (LOG) {
             Log.v(TAG, "onCreateView");
         }
+        setRetainInstance(true);
 
         View view = inflater.inflate(R.layout.fragment_web_view, container, false);
         webView = view.findViewById(R.id.web_view);

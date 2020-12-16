@@ -1,6 +1,5 @@
-package com.example.appweathergb.dialogs;
+package com.example.appweathergb.ui.dialogs;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -8,22 +7,20 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.appweathergb.Constants;
+import com.example.appweathergb.storage.Constants;
 import com.example.appweathergb.R;
 import com.example.appweathergb.observers.MyDialogFragment;
 import com.example.appweathergb.singleton.SimpleSingleton;
 
-public class CitySelectionSuccessDialog extends DialogFragment implements MyDialogFragment, Constants {
+public class CitySelectionSuccessDialog extends DialogFragment implements MyDialogFragment {
 
 
     private TextView titleDialog;
@@ -90,8 +87,8 @@ public class CitySelectionSuccessDialog extends DialogFragment implements MyDial
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
-        final Drawable drawable = new ColorDrawable(transparent);
-        drawable.setAlpha(alpha0);
+        final Drawable drawable = new ColorDrawable(Constants.transparent);
+        drawable.setAlpha(Constants.alpha0);
 
         dialog.getWindow().setBackgroundDrawable(drawable);
         dialog.getWindow().requestFeature(android.view.Window.FEATURE_NO_TITLE);

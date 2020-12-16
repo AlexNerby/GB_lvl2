@@ -20,7 +20,7 @@
     <string name="settings">Настройки</string>
     <string name="city_menu_title">City</string>
     <string name="search_menu_title">search</string>
-    <string name="wind_speed">%d м/с</string>
+    <string name="wind_speed">%s м/с</string>
     <string name="add_city">Введите Город</string>
     <string name="city_start_app">москва</string>
     <string name="title_succes_city_dialog">Город %s</string>

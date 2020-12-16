@@ -13,19 +13,19 @@ public class SimpleSingleton {
     private List<String> msg;
     private String city;
 
-    public List<String> getMsg() {
+    public synchronized List<String> getMsg() {
         return msg;
     }
 
-    public String getCity() {
+    public synchronized String getCity() {
         return city;
     }
 
-    public void setCity(String city) {
+    public synchronized void setCity(String city) {
         this.city = city;
     }
 
-    public void setMsg(List<String> msg) {
+    public synchronized void setMsg(List<String> msg) {
         this.msg = new ArrayList<>(msg);
     }
 

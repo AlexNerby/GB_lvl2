@@ -1,4 +1,4 @@
-package com.example.appweathergb.fragments;
+package com.example.appweathergb.ui.fragments;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.appweathergb.R;
-import com.example.appweathergb.adapters.DaysAdapter;
 import com.example.appweathergb.adapters.HoursAdapter;
 
 public class HoursFragment extends Fragment {

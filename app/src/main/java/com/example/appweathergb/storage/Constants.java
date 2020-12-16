@@ -1,4 +1,4 @@
-package com.example.appweathergb;
+package com.example.appweathergb.storage;
 
 public interface Constants {
     int REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY = 777;

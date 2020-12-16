@@ -1,4 +1,4 @@
-package com.example.appweathergb.dialogs;
+package com.example.appweathergb.ui.dialogs;
 
 import android.app.Dialog;
 import android.graphics.drawable.ColorDrawable;
@@ -15,11 +15,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.appweathergb.Constants;
+import com.example.appweathergb.storage.Constants;
 import com.example.appweathergb.R;
 import com.example.appweathergb.singleton.SimpleSingleton;
 
-public class CitySelectionExceptionDialog  extends DialogFragment implements Constants {
+public class CitySelectionExceptionDialog  extends DialogFragment {
 
 
     private TextView titleDialog;
@@ -77,8 +77,8 @@ public class CitySelectionExceptionDialog  extends DialogFragment implements Con
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
-        final Drawable drawable = new ColorDrawable(transparent);
-        drawable.setAlpha(alpha0);
+        final Drawable drawable = new ColorDrawable(Constants.transparent);
+        drawable.setAlpha(Constants.alpha0);
 
         dialog.getWindow().setBackgroundDrawable(drawable);
         dialog.getWindow().requestFeature(android.view.Window.FEATURE_NO_TITLE);

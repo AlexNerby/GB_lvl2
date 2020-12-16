@@ -1,4 +1,4 @@
-package com.example.appweathergb.dialogs;
+package com.example.appweathergb.ui.dialogs;
 
 public interface OnDialogListenerCitySelect {
     void onDialogOk();

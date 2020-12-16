@@ -1,13 +1,19 @@
-package com.example.appweathergb.network;
+package com.example.appweathergb.service;
 
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Binder;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.IBinder;
 import android.util.Log;
 
 import com.example.appweathergb.BuildConfig;
-import com.example.appweathergb.storage.Constants;
 import com.example.appweathergb.network.model.WeatherRequest;
-import com.example.appweathergb.observers.WeatherConnector;
+import com.example.appweathergb.parcer.JsonParser;
+import com.example.appweathergb.parcer.ParserConnector;
+import com.example.appweathergb.storage.Constants;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
@@ -18,41 +24,58 @@ import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class JsonConnector {
-    //:TODO разобраться с имеющимся API или заменить на более подробный
-    //TODO: заменить на Retrofit
+public class JsonService extends Service {
 
     private static final boolean LOG = true;
-    private static final String TAG = "myWeatherJsonConnector";
-    private final int readTimeout = 10000;
+    private static final String TAG = "myWeatherServiceGetJson";
+    private static final int readTimeout = 10000;
 
-    private final WeatherConnector weatherConnector;
+    private final IBinder binder = new ServiceBinder();
+
+    private final HandlerThread handlerThread = new HandlerThread("HandlerThreadJsonService");
+    private final ParserConnector parserConnector = new JsonParser();
     private volatile WeatherRequest weatherRequest;
-    private final String city;
 
-
-    public JsonConnector(String city, Context context) {
+    @Override
+    public void onCreate() {
         if (LOG) {
-            Log.d(TAG, "Constructor JsonConnector");
+            Log.d(TAG, "onCreate | handlerThread.start()");
         }
-
-        this.weatherConnector = (WeatherConnector) context;
-        this.city = city;
-        readJsonConnector();
+        handlerThread.start();
+        super.onCreate();
     }
 
-    public void readJsonConnector() {
+    @Override
+    public void onDestroy() {
         if (LOG) {
-            Log.v(TAG, "readJsonConnector");
+            Log.d(TAG, "onDestroy | handlerThread.quitSafely()");
         }
+        handlerThread.quitSafely();
+        super.onDestroy();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        if (LOG) {
+            Log.d(TAG, "onBind");
+        }
+        return binder;
+    }
+
+    public void startHttps(Context context, String city) {
+        if (LOG) {
+            Log.v(TAG, "startHttps");
+        }
+
+        final Handler handler = new Handler(handlerThread.getLooper());
+        final Handler handlerException = new Handler(handlerThread.getLooper());
         try {
             final String url = String.format(
                     "https://api.openweathermap.org/data/2.5/weather?q=%s,RU&appid=%s",
                     city, BuildConfig.WEATHER_API_KEY);
             final URL uri = new URL(url);
-            final Handler handler = new Handler();
 
-            new Thread(() -> {
+            handler.post(() -> {
                 HttpsURLConnection urlConnection = null;
                 try {
                     urlConnection = (HttpsURLConnection) uri.openConnection();
@@ -64,47 +87,45 @@ public class JsonConnector {
 
                     Gson gson = new Gson();
                     weatherRequest = gson.fromJson(result, WeatherRequest.class);
-
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            displayWeather(weatherRequest);
-                        }
-                    });
+                    parserConnector.parse(weatherRequest, context, null);
 
                 } catch (Exception e) {
                     Log.e(TAG, Constants.failConnection, e);
                     e.printStackTrace();
-                    handler.post(new Runnable() {
+                    handlerException.post(new Runnable() {
                         @Override
                         public void run() {
-                            weatherConnector.update(weatherRequest, Constants.failConnection);
+                            parserConnector.parse(weatherRequest, context, Constants.failConnection);
                         }
                     });
+
                 } finally {
                     if (urlConnection != null) {
                         urlConnection.disconnect();
                     }
                 }
-            }).start();
+            });
         } catch (MalformedURLException e) {
             Log.e(TAG, Constants.failURI, e);
             e.printStackTrace();
         }
     }
 
-    private static String getLines(BufferedReader in) {
+    private String getLines(BufferedReader in) {
         if (LOG) {
             Log.v(TAG, "getLines");
         }
-
         return in.lines().collect(Collectors.joining("\n"));
     }
 
-    private void displayWeather(WeatherRequest weatherRequest) {
-        if (LOG) {
-            Log.v(TAG, "displayWeather");
+    // Класс связи между клиентом и сервисом
+    public class ServiceBinder extends Binder {
+        JsonService getService() {
+            return JsonService.this;
         }
-        weatherConnector.update(weatherRequest, null);
+
+        public void startHttps(Context context, String city) {
+            getService().startHttps(context, city);
+        }
     }
 }
