@@ -29,5 +29,7 @@
     <string name="body_warning_sity_dialog">%s не найден</string>
     <string name="settings_Button_apply">Применить</string>
     <string name="Change_theme">Сменить тему  </string>
+    <string name="new_message">New Message!</string>
+    <string name="expand_to_show">Expand to show</string>
 
 </resources>

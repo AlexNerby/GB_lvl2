@@ -1,12 +1,22 @@
 package com.example.appweathergb.network.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Coord {
-    private float lat;
+
+    @SerializedName("lon")
+    @Expose
     private float lon;
+
+    @SerializedName("lat")
+    @Expose
+    private float lat;
 
     public float getLon() {
         return lon;
     }
+
 
     public void setLon(float lon) {
         this.lon = lon;

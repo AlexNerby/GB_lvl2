@@ -1,4 +1,4 @@
-package com.example.appweathergb.parcer;
+package com.example.appweathergb.parser;
 
 import android.content.Context;
 

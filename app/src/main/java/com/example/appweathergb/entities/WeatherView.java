@@ -6,6 +6,15 @@ public class WeatherView {
     private String temperature;
     private String windSpeed;
     private String exception;
+    private int workerTemperature;
+
+    public int getWorkerTemperature() {
+        return workerTemperature;
+    }
+
+    public void setWorkerTemperature(int workerTemperature) {
+        this.workerTemperature = workerTemperature;
+    }
 
     public String getException() {
         return exception;

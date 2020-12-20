@@ -1,5 +1,7 @@
 package com.example.appweathergb.singleton;
 
+import com.example.appweathergb.entities.WeatherView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,15 @@ public class SimpleSingleton {
 
     private List<String> msg;
     private String city;
+    private WeatherView weatherView;
+
+    public synchronized WeatherView getWeatherView() {
+        return weatherView;
+    }
+
+    public synchronized void setWeatherView(WeatherView weatherView) {
+        this.weatherView = weatherView;
+    }
 
     public synchronized List<String> getMsg() {
         return msg;

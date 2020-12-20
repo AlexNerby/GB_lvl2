@@ -18,4 +18,6 @@
     <dimen name="dp6">6dp</dimen>
     <dimen name="sp36">36sp</dimen>
     <dimen name="dp50">50dp</dimen>
+    <dimen name="dp256">256dp</dimen>
+    <dimen name="dp280">280dp</dimen>
 </resources>

@@ -1,9 +1,40 @@
 package com.example.appweathergb.network.model;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Main {
+    @SerializedName("temp")
+    @Expose
     private float temp;
+    @SerializedName("temp_max")
+    @Expose
+    private float temp_max;
+    @SerializedName("temp_min")
+    @Expose
+    private float temp_min;
+    @SerializedName("pressure")
+    @Expose
     private int pressure;
+    @SerializedName("humidity")
+    @Expose
     private int humidity;
+
+    public float getTemp_max() {
+        return temp_max;
+    }
+
+    public void setTemp_max(float temp_max) {
+        this.temp_max = temp_max;
+    }
+
+    public float getTemp_min() {
+        return temp_min;
+    }
+
+    public void setTemp_min(float temp_min) {
+        this.temp_min = temp_min;
+    }
 
     public float getTemp() {
         return temp;
