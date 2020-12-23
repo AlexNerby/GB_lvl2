@@ -2,6 +2,7 @@ package com.example.appweathergb.service;
 
 import android.app.Notification;
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -33,7 +34,7 @@ public class MyWorker extends Worker {
     private static String expandedInfoText;
     private final static String coldWeather = "https://images.unsplash.com/photo-1514632595-4944383f2737?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80";
     private final static String normalWeather = "https://images.unsplash.com/photo-1550143387-52fa147f9c65?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1048&q=80";
-    private final static String warmWeather = "https://images.unsplash.com/photo-1472828420184-741d2c0d43b3?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1746&q=80";
+    private final static String warmWeather = "https://images.unsplash.com/photo-1512927074392-1653e8439dbd?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80";
     private static String containerUri;
     private final NotificationManagerCompat notificationManager;
     private final Handler handler;
@@ -67,6 +68,9 @@ public class MyWorker extends Worker {
                 .setCustomContentView(collapsedView)
                 .setCustomBigContentView(expandedView)
                 .build();
+
+//        MediaPlayer mp= MediaPlayer.create(getApplicationContext(), R.raw.surprise);
+//        mp.start();
 
         handler.post(new Runnable() {
             @Override
