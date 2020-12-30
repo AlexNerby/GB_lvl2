@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.appweathergb.R;
-import com.example.appweathergb.adapters.DaysAdapter;
+import com.example.appweathergb.ui.adapters.DaysAdapter;
 
 public class DaysFragment extends Fragment {
 
@@ -30,7 +30,6 @@ public class DaysFragment extends Fragment {
         if (LOG) {
             Log.d(TAG, "onCreateView");
         }
-
 
         View view = inflater.inflate(R.layout.fragment_days, container, false);
         days = getResources().getStringArray(R.array.days);
@@ -55,10 +54,6 @@ public class DaysFragment extends Fragment {
                 }
             });
         }
-
-
-
-
         return view;
     }
 }

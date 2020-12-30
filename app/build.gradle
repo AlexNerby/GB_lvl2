@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -19,7 +20,7 @@ android {
     buildTypes.each {
         Properties properties = new Properties()
         properties.load(rootProject.file("apikey.properties").newDataInputStream())
-        def weatherApiKey  = properties.getProperty("weather_api_key", "")
+        def weatherApiKey = properties.getProperty("weather_api_key", "")
         it.buildConfigField "String", "WEATHER_API_KEY", weatherApiKey
     }
 
@@ -43,6 +44,8 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'worker:worker:0.2.0'
     implementation 'androidx.work:work-runtime:2.4.0'
+    implementation 'com.google.firebase:firebase-messaging:21.0.1'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
     testImplementation 'junit:junit:4.+'
     implementation 'com.google.android.material:material:1.2.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
@@ -58,3 +61,5 @@ dependencies {
     implementation "android.arch.persistence.room:runtime:1.1.1"
     annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
 }
+
+apply plugin: 'com.google.gms.google-services'

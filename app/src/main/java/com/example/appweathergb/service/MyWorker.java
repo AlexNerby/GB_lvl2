@@ -2,7 +2,6 @@ package com.example.appweathergb.service;
 
 import android.app.Notification;
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -18,8 +17,8 @@ import androidx.work.WorkerParameters;
 
 import com.example.appweathergb.R;
 import com.example.appweathergb.entities.WeatherView;
-import com.example.appweathergb.parser.ParserConnector;
 import com.example.appweathergb.singleton.MyApp;
+import com.example.appweathergb.storage.Constants;
 import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.TimeUnit;
@@ -28,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class MyWorker extends Worker {
 
     private final static String TAG = "myWeatherWorker";
-    private static final Object object = new Object();
+    private final static Object object = new Object();
 
     private static String expandedTitleText;
     private static String expandedInfoText;
@@ -62,7 +61,7 @@ public class MyWorker extends Worker {
     public Result doWork() {
         Log.v(TAG, "doWork");
 
-        final Notification notification = new NotificationCompat.Builder(MyApp.getAppContext(), "id2")
+        final Notification notification = new NotificationCompat.Builder(MyApp.getAppContext(), Constants.CHANNEL_ID_NOTIF)
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .setContentTitle("Weather")
                 .setCustomContentView(collapsedView)
@@ -87,7 +86,7 @@ public class MyWorker extends Worker {
     }
 
 
-    public static class WorkerConnector implements ParserConnector.BackParser {
+    public static class WorkerConnector {
 
         public void createWorker() {
             Log.v(TAG, "createWorker");
@@ -100,7 +99,6 @@ public class MyWorker extends Worker {
             workManager.enqueue(workRequest);
         }
 
-        @Override
         public void dataWeather(WeatherView weatherView, String exception) {
 
             synchronized (object) {

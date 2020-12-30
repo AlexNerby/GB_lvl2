@@ -8,6 +8,8 @@ import java.util.List;
 
 public class WeatherSource {
 
+    //TODO: обращаться через WeatherRepository
+
     private final WeatherDao weatherDao;
 
     private List<WeatherHistorySearch> weatherHistories;

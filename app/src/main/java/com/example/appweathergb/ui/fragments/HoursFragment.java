@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.appweathergb.R;
-import com.example.appweathergb.adapters.HoursAdapter;
+import com.example.appweathergb.ui.adapters.HoursAdapter;
 
 public class HoursFragment extends Fragment {
 

@@ -1,4 +1,4 @@
-package com.example.appweathergb.adapters;
+package com.example.appweathergb.ui.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;

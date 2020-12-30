@@ -27,4 +27,6 @@ public class WeatherHistorySearch {
         return city + "  " +
                  dateWeather;
     }
+
+    //TODO: temperature and etc
 }

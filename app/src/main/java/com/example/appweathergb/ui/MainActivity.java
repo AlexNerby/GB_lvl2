@@ -1,54 +1,52 @@
 package com.example.appweathergb.ui;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
-import android.content.ComponentName;
+import android.Manifest;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.appweathergb.BuildConfig;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.example.appweathergb.R;
-import com.example.appweathergb.parser.JsonParser;
-import com.example.appweathergb.singleton.MyApp;
-import com.example.appweathergb.ui.dialogs.CitySelectionExceptionDialog;
-import com.example.appweathergb.ui.dialogs.OnDialogListenerExceptionConnection;
 import com.example.appweathergb.entities.WeatherView;
+import com.example.appweathergb.storage.Constants;
+import com.example.appweathergb.ui.dialogs.CitySelectionExceptionDialog;
 import com.example.appweathergb.ui.fragments.DaysFragment;
 import com.example.appweathergb.ui.fragments.HoursFragment;
 import com.example.appweathergb.ui.fragments.WebViewFragment;
-import com.example.appweathergb.network.model.WeatherRequest;
-import com.example.appweathergb.observers.WeatherConnector;
-import com.example.appweathergb.parser.ParserConnector;
-import com.example.appweathergb.service.JsonService;
+import com.example.appweathergb.ui.presenter.WeatherPresenter;
 import com.example.appweathergb.ui.settings.BaseActivity;
 import com.example.appweathergb.ui.settings.SettingsActivity;
-import com.example.appweathergb.storage.Constants;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
+import java.util.List;
 
 public class MainActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener
-        , ParserConnector.BackParser {
-    //TODO: добавить ин.яз. в ресурсы. В новом классе переопределить коллбэк для requestRetrofit();
+        , OutputWeatherView {
+
+    //TODO: добавить ин.яз. в ресурсы.
+
+    private static final int PERMISSION_REQUEST_CODE = 10;
+
 
     private static final boolean LOG = true;
     private static final String TAG = "myWeatherActivityMain";
@@ -69,108 +67,93 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
     private String toolbarTitleClose;
     private String toolbarTitleMove;
 
-    private boolean isBound = false;
-    private JsonService.ServiceBinder boundService;
-
-    private final ParserConnector parserConnector = new JsonParser();
+    private InputPresenter inputPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (LOG) {
-            Log.d(TAG, "start onCreate");
+            Log.d(TAG, "onCreate");
         }
-        //TODO: можно определить задачу в свободный сервис
-//        Intent intent = new Intent(MainActivity.this, JsonService.class);
-//        bindService(intent, boundServiceConnection, BIND_AUTO_CREATE);
 
-        //Проверка на конект сервиса
-//        if (boundService == null) {
-//            Log.d(TAG, "boundService == null");
-//            Intent intent = new Intent(MainActivity.this, JsonService.class);
-//            bindService(intent, boundServiceConnection, BIND_AUTO_CREATE);
-//        } else {
-//            boundService.freeMethod();
-//        }
-
-        initRetrofit();
         initBars();
         initDrawer(toolbar);
         initStartFragments();
         initView();
+        architectureInit();
+        initGetToken();
+        requestPemissions();
+
     }
 
-    private void initRetrofit() {
+    private void requestPemissions() {
         if (LOG) {
-            Log.v(TAG, "start initRetrofit");
+            Log.v(TAG, "requestPemissions");
         }
-
-        requestRetrofit(getString(R.string.city_start_app), BuildConfig.WEATHER_API_KEY);
-    }
-
-    private void requestRetrofit(String city, String keyApi) {
-        if (LOG) {
-            Log.v(TAG, "requestRetrofit");
-        }
-        MyApp.getOpenWeatherApi().loadWeather(city, keyApi).enqueue(new Callback<WeatherRequest>() {
-            @Override
-            public void onResponse(Call<WeatherRequest> call, Response<WeatherRequest> response) {
-                if (response.body() != null) {
-                    if (LOG) {
-                        Log.v(TAG, "onResponse if");
-                    }
-                    parserConnector.parse(response.body(), MainActivity.this, null);
-//                    response.body().setName(null);
-                } else {
-                    if (LOG) {
-                        Log.v(TAG, "onResponse else");
-                    }
-                    parserConnector.parse(new WeatherRequest(), MainActivity.this, Constants.failConnection);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<WeatherRequest> call, Throwable t) {
-                if (LOG) {
-                    Log.v(TAG, "onFailure", t);
-                }
-                parserConnector.parse(new WeatherRequest(), MainActivity.this, Constants.failConnection);
-            }
-        });
-    }
-
-    private ServiceConnection boundServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            boundService = (JsonService.ServiceBinder) iBinder;
-            isBound = boundService != null;
-            boundService.freeMethod(MainActivity.this, getString(R.string.city_start_app));
-            if (isBound) {
-                Log.d(TAG, "boundService connection | startHttps");
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            isBound = false;
-            boundService = null;
+        // Проверим на пермиссии, и если их нет, запросим у пользователя
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            // запросим координаты
             if (LOG) {
-                Log.d(TAG, "boundService = null | isBound = false");
+                Log.v(TAG, "requestPemissions if");
             }
+
+        } else {
+            // пермиссии нет, будем запрашивать у пользователя
+            if (LOG) {
+                Log.v(TAG, "requestPemissions else");
+            }
+            requestLocationPermissions();
         }
-    };
+    }
+
+    private void requestLocationPermissions() {
+        if (LOG) {
+            Log.v(TAG, "requestLocationPermissions");
+        }
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                || !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            // Запросим эти две пермиссии у пользователя
+            ActivityCompat.requestPermissions(this,
+                    new String[]{
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                    },
+                    PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    private void architectureInit() {
+        inputPresenter = new WeatherPresenter(this);
+        inputPresenter.search(getString(R.string.city_start_app));
+    }
+
+    private void initGetToken() {
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("PushMessage", "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+                        Log.i(TAG, token);
+                    }
+                });
+    }
+
 
     @Override
     protected void onStop() {
-        //TODO: fixed: при каждом повороте экрана убивает HandlerThread и пересоздает
+
         if (LOG) {
-            Log.d(TAG, "onStop | unbindService");
+            Log.d(TAG, "onStop");
+            super.onStop();
         }
-        if (isBound) {
-            unbindService(boundServiceConnection);
-        }
-        super.onStop();
     }
 
     private void initView() {
@@ -190,11 +173,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //TODO: рефакторинг условий, проработать размеры анимации в setCollapsedTitleTextAppearance
         appBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
             if (Math.abs(verticalOffset) == appBarLayout.getTotalScrollRange()) {
                 collapsingToolbarLayout.setTitle(toolbarTitleClose);
-//                collapsingToolbarLayout.setCollapsedTitleTextAppearance(R.style.toolbar_close);
             } else if (verticalOffset == 0) {
                 collapsingToolbarLayout.setTitle(toolbarTitleOpen);
             } else {
@@ -212,19 +193,16 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         }
 
         hoursFragment = new HoursFragment();
+        daysFragment = new DaysFragment();
+        webViewFragment = new WebViewFragment();
+
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
+
         fragmentTransaction.add(R.id.container_hours_fragment, hoursFragment);
-        fragmentTransaction.commit();
-
-        daysFragment = new DaysFragment();
-        fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.container_days_fragment, daysFragment);
-        fragmentTransaction.commit();
-
-        webViewFragment = new WebViewFragment();
-        fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.web_view_conteiner, webViewFragment);
+
         fragmentTransaction.commit();
     }
 
@@ -270,11 +248,15 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         int id = item.getItemId();
         switch (id) {
             case R.id.changeCity:
-                Intent intent = new Intent(this, SearchActivity.class);
-                intent.putExtra(Constants.KEY_SEARCH_ACTIVITY, mainCity.getText().toString());
-                startActivityForResult(intent, Constants.REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY);
+                inputPresenter.searchByCoordinates();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void activityForResult(int requestCode, String key, String value) {
+        Intent intent = new Intent(this, SearchActivity.class);
+        intent.putExtra(key, value);
+        startActivityForResult(intent, requestCode);
     }
 
     @Override
@@ -286,9 +268,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         int id = item.getItemId();
         switch (id) {
             case R.id.nav:
-                Intent intent = new Intent(this, SearchActivity.class);
-                intent.putExtra(Constants.KEY_SEARCH_ACTIVITY, mainCity.getText().toString());
-                startActivityForResult(intent, Constants.REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY);
+                activityForResult(Constants.REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY
+                        , Constants.KEY_SEARCH_ACTIVITY
+                        , mainCity.getText().toString());
                 break;
 
             case R.id.set:
@@ -303,11 +285,9 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         if (LOG) {
             Log.v(TAG, "onActivityResult");
         }
-
         if (requestCode == Constants.SETTING_CODE) {
             recreate();
         }
-
         if (requestCode != Constants.REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY) {
             super.onActivityResult(requestCode, resultCode, data);
             return;
@@ -316,38 +296,29 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
             String city = data.getStringExtra(Constants.KEY_MAIN_ACTIVITY);
 
             mainCity.setText(city);
-            requestRetrofit(city, BuildConfig.WEATHER_API_KEY);
+            inputPresenter.search(city);
         }
     }
 
     @Override
-    public void dataWeather(WeatherView weatherView, String exception) {
-        if (LOG) {
-            Log.v(TAG, "dataWeather");
-        }
-        if (exception != null) {
-            if (LOG) {
-                Log.v(TAG, "exception != null");
-            }
+    public void WeatherViewRequest(String city, String temp, String speed) {
+
+        if (city.equalsIgnoreCase(Constants.failConnection)) {
             CitySelectionExceptionDialog exceptionDialog = CitySelectionExceptionDialog.newInstance();
-            exceptionDialog.setDialogListenerExceptionConnection(new OnDialogListenerExceptionConnection() {
-                @Override
-                public void change() {
-                    Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-                    intent.putExtra(Constants.KEY_SEARCH_ACTIVITY, mainCity.getText().toString());
-                    startActivityForResult(intent, Constants.REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY);
-                }
-            });
+            exceptionDialog.setDialogListenerExceptionConnection(() ->
+                    activityForResult(Constants.REQUEST_CODE_MAIN_AND_SEARCH_ACTIVITY
+                            , Constants.KEY_SEARCH_ACTIVITY
+                            , mainCity.getText().toString()));
             exceptionDialog.show(getSupportFragmentManager(), "dialog_fragment");
-        } else {
-            if (LOG) {
-                Log.v(TAG, "exception == null");
-            }
-            mainCity.setText(weatherView.getCity());
-            mainTemp.setText(weatherView.getTemperature());
-            toolbarTitleOpen = String.format(getString(R.string.wind_speed), weatherView.getWindSpeed());
-            toolbarTitleClose = String.format("%s %s", weatherView.getCity(), weatherView.getTemperature());
-            toolbarTitleMove = String.format("%s", weatherView.getCity());
         }
+        mainCity.setText(city);
+        mainTemp.setText(temp);
+        toolbarTitleOpen = speed;
+        toolbarTitleMove = city;
+        toolbarTitleClose = String.format("%s %s", city, temp);
+    }
+
+    @Override
+    public void allWeather(List<WeatherView> weatherViewList) {
     }
 }

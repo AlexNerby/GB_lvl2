@@ -31,5 +31,9 @@
     <string name="Change_theme">Сменить тему  </string>
     <string name="new_message">New Message!</string>
     <string name="expand_to_show">Expand to show</string>
+    <string name="atention">Внимание!</string>
+    <string name="check_connection_network">Проверьте подключение к сети</string>
+    <string name="battery_low">Низкий заряд батареи</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

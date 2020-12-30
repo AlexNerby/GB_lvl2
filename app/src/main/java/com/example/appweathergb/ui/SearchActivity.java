@@ -2,11 +2,8 @@ package com.example.appweathergb.ui;
 
 import androidx.appcompat.widget.SearchView;
 
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,7 +15,6 @@ import android.widget.Toast;
 import com.example.appweathergb.dao.WeatherDao;
 import com.example.appweathergb.dao.WeatherSource;
 import com.example.appweathergb.entities.model.WeatherHistorySearch;
-import com.example.appweathergb.service.JsonService;
 import com.example.appweathergb.singleton.MyApp;
 import com.example.appweathergb.storage.Constants;
 import com.example.appweathergb.R;
@@ -28,8 +24,6 @@ import com.example.appweathergb.observers.Publisher;
 import com.example.appweathergb.singleton.SimpleSingleton;
 import com.example.appweathergb.ui.settings.BaseActivity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -57,7 +51,6 @@ public class SearchActivity extends BaseActivity implements Constants {
 
         initDb();
 
-//        singleton = SimpleSingleton.getInstance();
         publisher = new Publisher();
 
         initView();

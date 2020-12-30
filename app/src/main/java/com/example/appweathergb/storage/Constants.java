@@ -12,4 +12,8 @@ public interface Constants {
     String requestMethodGet = "GET";
     String failURI = "Fail URI";
     int SETTING_CODE = 88;
+    int subtract = 273;
+    String KEY_LOCATION_SERVICE = "keyLocationService";
+    String CHANNEL_ID_NOTIF = "id2";
+
 }
