@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient"
+    android:background="?attr/cardBackgroundColor"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_main_cordinator">
 
@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="15dp"
-        android:backgroundTint="@color/cardViewBackgr"
+        android:backgroundTint="?attr/colorPrimary"
         app:cardCornerRadius="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -38,7 +38,7 @@
         android:layout_marginTop="@dimen/dp5"
         android:layout_marginEnd="@dimen/dp15"
         android:layout_marginBottom="15dp"
-        android:backgroundTint="@color/cardViewBackgr"
+        android:backgroundTint="?attr/colorPrimary"
         app:cardCornerRadius="@dimen/dp20"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

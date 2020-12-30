@@ -7,13 +7,12 @@
         <item
             android:id="@+id/nav"
             android:icon="@drawable/place"
-            android:title="@string/location_drawer"/>
+            android:title="@string/location_drawer" />
 
         <item
             android:id="@+id/set"
             android:icon="@drawable/settings"
-            android:title="@string/settings"
-            />
+            android:title="@string/settings" />
     </group>
 
     <item android:title="@string/communicate">

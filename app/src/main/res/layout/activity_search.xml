@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient"
-    tools:context=".SearchActivity">
+    android:background="?attr/cardBackgroundColor"
+    tools:context=".ui.SearchActivity">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
@@ -20,7 +20,7 @@
         android:id="@+id/list_view_search"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/cardViewBackgr"
+        android:background="?attr/colorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/mic"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
     </androidx.cardview.widget.CardView>
@@ -39,7 +39,7 @@
             android:id="@+id/searchView_listView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/cardViewBackgr"
+            android:background="?attr/colorPrimary"
             android:padding="@dimen/dp5"
             android:textColor="@color/white" />
 

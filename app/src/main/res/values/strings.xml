@@ -20,8 +20,20 @@
     <string name="settings">Настройки</string>
     <string name="city_menu_title">City</string>
     <string name="search_menu_title">search</string>
-    <string name="wind_speed">%d м/с</string>
+    <string name="wind_speed">%s м/с</string>
     <string name="add_city">Введите Город</string>
     <string name="city_start_app">москва</string>
+    <string name="title_succes_city_dialog">Город %s</string>
+    <string name="body_success_sity_dialog">Выбрать расположение город %s</string>
+    <string name="Connection_exception">Ошибка соединения</string>
+    <string name="body_warning_sity_dialog">%s не найден</string>
+    <string name="settings_Button_apply">Применить</string>
+    <string name="Change_theme">Сменить тему  </string>
+    <string name="new_message">New Message!</string>
+    <string name="expand_to_show">Expand to show</string>
+    <string name="atention">Внимание!</string>
+    <string name="check_connection_network">Проверьте подключение к сети</string>
+    <string name="battery_low">Низкий заряд батареи</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

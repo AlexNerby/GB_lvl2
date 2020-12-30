@@ -10,7 +10,12 @@
     <color name="main">#2470C3</color>
     <color name="gradient_high">#215CBD</color>
     <color name="cardViewBackgr">#2E8DF3</color>
+    <color name="cardViewBackgrDark">#6C70C6</color>
     <color name="border_color_avatar">#1F6EB3</color>
     <color name="text_header">#073531</color>
+    <color name="colorSucces">#37DA80</color>
+    <color name="colorWarning">#DC5656</color>
+    <color name="colorNeutral">#466554</color>
+    <color name="gradient_dark_start">#8828BC</color>
 
 </resources>
